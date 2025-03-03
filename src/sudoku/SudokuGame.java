@@ -1,7 +1,5 @@
 package sudoku;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 import boardgame.Board;
@@ -9,10 +7,9 @@ import boardgame.Position;
 
 public class SudokuGame {
     private Board board;
-    private boolean finished;
 
-    public SudokuGame() {
-        board = new Board(9, 9);
+    public SudokuGame(SudokuGenerator.Difficulty level) {
+        board = new Board(9, 9, level);
     }
 
     public Board getBoard() {
@@ -46,116 +43,55 @@ public class SudokuGame {
     }
 
     public boolean hasErrors() {
-        // verify lines
-        for (var line : getPositions()) {
-            var set = new HashSet<>(
-                    line.stream().filter(c -> c.getValue() != null && c.getValue() >= 1 && c.getValue() <= 9)
-                            .map(c -> c.getValue()).toList());
-            if (set.size() != 9)
-                return true;
-        }
+        int[][] board = convertToMatrix();
 
-        // verify column
-        var set = new HashSet<Integer>();
-        for (int i = 0; i < 9; i++) {
-            for (var line : getPositions()) {
-                set.add(line.get(i).getValue());
+        for (int row = 0; row < 9; row++) {
+            for (int col = 0; col < 9; col++) {
+                int number = board[row][col];
+
+                if (number != 0) {
+                    board[row][col] = 0;
+
+                    if (!isValid(board, row, col, number)) {
+                        return true;
+                    }
+
+                    board[row][col] = number;
+                }
             }
         }
-        if (set.size() != 9)
-            return true;
-
-        // veryfy 00 quadrant
-        set = new HashSet<Integer>();
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                set.add(getPositions().get(i).get(j).getValue());
-            }
-        }
-        if (set.size() != 9)
-            return true;
-
-        // veryfy 01 quadrant
-        set = new HashSet<Integer>();
-        for (int i = 0; i < 3; i++) {
-            for (int j = 3; j < 6; j++) {
-                set.add(getPositions().get(i).get(j).getValue());
-            }
-        }
-        if (set.size() != 9)
-            return true;
-
-        // veryfy 02 quadrant
-        set = new HashSet<Integer>();
-        for (int i = 0; i < 3; i++) {
-            for (int j = 6; j < 9; j++) {
-                set.add(getPositions().get(i).get(j).getValue());
-            }
-        }
-        if (set.size() != 9)
-            return true;
-
-        // veryfy [1][0] quadrant
-        set = new HashSet<Integer>();
-        for (int i = 3; i < 6; i++) {
-            for (int j = 0; j < 3; j++) {
-                set.add(getPositions().get(i).get(j).getValue());
-            }
-        }
-        if (set.size() != 9)
-            return true;
-
-        // veryfy [1][1] quadrant
-        set = new HashSet<Integer>();
-        for (int i = 3; i < 6; i++) {
-            for (int j = 3; j < 6; j++) {
-                set.add(getPositions().get(i).get(j).getValue());
-            }
-        }
-        if (set.size() != 9)
-            return true;
-
-        // veryfy [1][2] quadrant
-        set = new HashSet<Integer>();
-        for (int i = 3; i < 6; i++) {
-            for (int j = 6; j < 9; j++) {
-                set.add(getPositions().get(i).get(j).getValue());
-            }
-        }
-        if (set.size() != 9)
-            return true;
-
-        // veryfy [2][0] quadrant
-        set = new HashSet<Integer>();
-        for (int i = 6; i < 9; i++) {
-            for (int j = 0; j < 3; j++) {
-                set.add(getPositions().get(i).get(j).getValue());
-            }
-        }
-        if (set.size() != 9)
-            return true;
-
-        // veryfy [2][1] quadrant
-        set = new HashSet<Integer>();
-        for (int i = 6; i < 9; i++) {
-            for (int j = 3; j < 6; j++) {
-                set.add(getPositions().get(i).get(j).getValue());
-            }
-        }
-        if (set.size() != 9)
-            return true;
-
-        // veryfy [2][2] quadrant
-        set = new HashSet<Integer>();
-        for (int i = 6; i < 9; i++) {
-            for (int j = 6; j < 9; j++) {
-                set.add(getPositions().get(i).get(j).getValue());
-            }
-        }
-        if (set.size() != 9)
-            return true;
-
         return false;
+    }
+
+    private int[][] convertToMatrix() {
+        int[][] matrix = new int[9][9];
+        List<List<Position>> positions = getPositions();
+
+        for (int row = 0; row < 9; row++) {
+            for (int col = 0; col < 9; col++) {
+                Integer value = positions.get(row).get(col).getValue();
+                matrix[row][col] = (value == null) ? 0 : value;
+            }
+        }
+        return matrix;
+    }
+
+    private boolean isValid(int[][] board, int row, int col, int number) {
+        for (int i = 0; i < 9; i++) {
+            if (board[row][i] == number || board[i][col] == number) {
+                return false;
+            }
+        }
+        int startRow = row - row % 3;
+        int startCol = col - col % 3;
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (board[startRow + i][startCol + j] == number) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
 }

@@ -130,7 +130,8 @@ public class SudokuGenerator {
 
     private static int getCellsToRemove(Difficulty difficulty) {
         return switch (difficulty) {
-            case EASY -> 1;
+            case VERY_EASY -> 5;
+            case EASY -> 40;
             case MEDIUM -> 50;
             case HARD -> 60;
         };
@@ -150,6 +151,6 @@ public class SudokuGenerator {
     }
 
     public enum Difficulty {
-        EASY, MEDIUM, HARD
+        VERY_EASY, EASY, MEDIUM, HARD
     }
 }
