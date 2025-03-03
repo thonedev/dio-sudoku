@@ -50,16 +50,17 @@ public class App {
                 UI.clearScreen();
                 UI.printBoard(sudokuGame.getPositions(), null);
                 System.out.println();
-                System.out.print("Position: ");
+                System.out.print("Digite a posição (ex: a1): ");
                 var position = UI.readPosition(sc, sudokuGame.getPositions());
 
                 UI.clearScreen();
                 UI.printBoard(sudokuGame.getPositions(), position);
                 if (position.getChangeble()) {
-                    System.out.print("New Value: ");
+                    System.out.print("Digite o novo valor: ");
                     var v = sc.nextInt();
                     sc.nextLine();
                     sudokuGame.makeMove(position, v);
+                    // TODO melhorar a visibilidade de erros no tabuleiro
                     if (sudokuGame.hasErrors())
                         System.err.println("err");
                 } else {
